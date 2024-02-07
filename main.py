@@ -11,7 +11,7 @@ import torch
 import logging
 import os
 import torchvision.transforms as transforms
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 
 from pathlib import Path
 
@@ -218,13 +218,13 @@ def get_outlog(args):
     os.makedirs(ckpt_dir, exist_ok=True)
     os.makedirs(tb_dir, exist_ok=True)
     os.makedirs(tb_log_dir, exist_ok=True)
-    tb_writer = SummaryWriter(
-        log_dir=os.path.join(
-            tb_dir,
-            args.model+ "_" + args.data_set
-        ),
-        flush_secs=1
-    )
+    # tb_writer = SummaryWriter(
+    #     log_dir=os.path.join(
+    #         tb_dir,
+    #         args.model+ "_" + args.data_set
+    #     ),
+    #     flush_secs=1
+    # )
     logger = utils.get_logger(
         level=logging.INFO,
         mode="w",
@@ -235,7 +235,7 @@ def get_outlog(args):
         )
     )
 
-    return tb_writer, logger
+    return logger
 
 
 def set_seed(seed):
@@ -258,7 +258,7 @@ def main(args):
         args.smoothing = 0.1
     utils.init_distributed_mode(args)
 
-    tb_writer, logger = get_outlog(args)
+    logger = get_outlog(args)
 
     logger.info("Start running with args: \n{}".format(args))
     logger.info("Distributed: {}".format(args.distributed))
@@ -428,13 +428,12 @@ def main(args):
             model=model, criterion=criterion, data_loader=data_loader_train,
             optimizer=optimizer, device=device, epoch=epoch, loss_scaler=loss_scaler,
             max_norm=args.clip_grad, model_ema=model_ema, mixup_fn=mixup_fn,
-            args=args, tb_writer=tb_writer, iteration=__global_values__["it"],
+            args=args, iteration=__global_values__["it"],
             # set_training_mode=args.finetune == ''  # keep in eval mode during finetuning
         )
         logger.info("Averaged stats:")
         logger.info(train_stats)
         __global_values__["it"] += len(data_loader_train)
-        tb_writer.add_scalar("epoch/train_loss", train_stats["loss"], epoch)
         
         lr_scheduler.step(epoch)
         if args.output_dir:
@@ -453,13 +452,6 @@ def main(args):
 
         test_stats = evaluate(data_loader=data_loader_val, model=model, device=device, args=args)
         logger.info(test_stats)
-
-        tb_writer.add_scalar("epoch/val_acc1", test_stats['acc1'], epoch)
-        tb_writer.add_scalar("epoch/val_loss", test_stats['loss'], epoch)
-        tb_writer.add_scalar("epoch/val_acc5", test_stats['acc5'], epoch)
-        if args.use_global:
-            tb_writer.add_scalar("epoch/global_acc1", test_stats['global_acc1'], epoch)
-            tb_writer.add_scalar("epoch/local_acc1", test_stats['local_acc1'], epoch)
 
         logger.info(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
         # if max_accuracy < test_stats["acc1"]:   # save the best

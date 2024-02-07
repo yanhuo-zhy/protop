@@ -23,7 +23,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 def train_one_epoch(model: torch.nn.Module, criterion: _Loss,
                     data_loader: Iterable, optimizer: torch.optim.Optimizer,
-                    tb_writer: SummaryWriter, iteration: int,
+                    iteration: int,
                     device: torch.device, epoch: int, loss_scaler, max_norm: float = 0,
                     model_ema: Optional[ModelEma] = None, mixup_fn: Optional[Mixup] = None,
                     args=None,
@@ -84,28 +84,6 @@ def train_one_epoch(model: torch.nn.Module, criterion: _Loss,
         metric_logger.update(loss=loss_value)
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
 
-        tb_writer.add_scalars(
-            main_tag="train/loss",
-            tag_scalar_dict={
-                "cls": loss.item(),
-            },
-            global_step=iteration+it
-        )
-        if args.use_global and args.use_ppc_loss:
-            tb_writer.add_scalars(
-                main_tag="train/ppc_cov_loss",
-                tag_scalar_dict={
-                    "ppc_cov_loss": ppc_cov_loss.item(),
-                },
-                global_step=iteration+it
-            )
-            tb_writer.add_scalars(
-                main_tag="train/ppc_mean_loss",
-                tag_scalar_dict={
-                    "ppc_mean_loss": ppc_mean_loss.item(),
-                },
-                global_step=iteration+it
-            )
         it += 1
 
     # gather the stats from all processes
