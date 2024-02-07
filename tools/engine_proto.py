@@ -18,7 +18,7 @@ from timm.utils import accuracy, ModelEma
 
 from torch.nn.modules.loss import _Loss
 import tools.utils as utils
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 
 
 def train_one_epoch(model: torch.nn.Module, criterion: _Loss,
