@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 
 from torchvision.datasets import CIFAR10, CIFAR100
 
-cub_root = '/wang_hp/zhy/data'
+cub_root = '/db/pszzz/NCD_dataset/cub'
 
 ####my_cub_dataset
 class CustomCub2011(Dataset):
