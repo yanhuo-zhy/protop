@@ -515,9 +515,13 @@ class PPNet_Normal(nn.Module):
         self.ones = nn.Parameter(torch.ones(self.prototype_shape),
                                  requires_grad=False)
 
-        self.last_layer = nn.Linear(self.num_prototypes, self.num_classes,
+        # self.last_layer = nn.Linear(self.num_prototypes, self.num_classes,
+        #                             bias=False) # do not use bias
+        # self.last_layer_global = nn.Linear(self.num_prototypes_global, self.num_classes,
+        #                             bias=False) # do not use bias
+        self.last_layer = nn.Linear(self.num_prototypes, 12,
                                     bias=False) # do not use bias
-        self.last_layer_global = nn.Linear(self.num_prototypes_global, self.num_classes,
+        self.last_layer_global = nn.Linear(self.num_prototypes_global, 12,
                                     bias=False) # do not use bias
         self.last_layer.weight.requires_grad = False
         self.last_layer_global.weight.requires_grad = False
@@ -530,11 +534,11 @@ class PPNet_Normal(nn.Module):
         if init_weights:
             self._initialize_weights()
 
-        self.my_last = nn.Linear(100, 100, bias=False)
-        self.my_last_global = nn.Linear(100, 100, bias=False)
+        # self.my_last = nn.Linear(100, 100, bias=False)
+        # self.my_last_global = nn.Linear(100, 100, bias=False)
 
-        trunc_normal_(self.my_last.weight, std=.02)
-        trunc_normal_(self.my_last_global.weight, std=.02)
+        # trunc_normal_(self.my_last.weight, std=.02)
+        # trunc_normal_(self.my_last_global.weight, std=.02)
 
         # # 遍历 protopformer.features.blocks
         # # 首先关闭 self.protopformer.features 中所有参数的梯度
@@ -639,14 +643,18 @@ class PPNet_Normal(nn.Module):
             global_activations, _ = self.get_activations(cls_tokens, self.prototype_vectors_global)
             local_activations, _ = self.get_activations(img_tokens, self.prototype_vectors)
 
-            logits_global = self.last_layer_global(global_activations)
-            logits_local = self.last_layer(local_activations)
-            ##
-            logits_global = self.my_last(logits_global)
-            logits_local = self.my_last_global(logits_local)
-            ##
-            logits = self.global_coe * logits_global + (1. - self.global_coe) * logits_local
-            return logits, (_, _, logits_global, logits_local)
+            # logits_global = self.last_layer_global(global_activations)
+            # logits_local = self.last_layer(local_activations)
+            # ##
+            # logits_global = self.my_last(logits_global)
+            # logits_local = self.my_last_global(logits_local)
+            # ##
+            # logits = self.global_coe * logits_global + (1. - self.global_coe) * logits_local
+            features_global = self.last_layer_global(global_activations)
+            features_local = self.last_layer(local_activations)
+            features = torch.cat((features_global, features_local), dim=1)
+            # return logits, (_, _, logits_global, logits_local)
+            return features, (_, _, features_global, features_local)
 
         # re-calculate distances
         ##dino
@@ -670,17 +678,21 @@ class PPNet_Normal(nn.Module):
         global_activations, _ = self.get_activations(cls_tokens, self.prototype_vectors_global)
         local_activations, _ = self.get_activations(img_tokens, self.prototype_vectors)
 
-        logits_global = self.last_layer_global(global_activations)
-        logits_local = self.last_layer(local_activations)
+        # logits_global = self.last_layer_global(global_activations)
+        # logits_local = self.last_layer(local_activations)
 
-        ##
-        logits_global = self.my_last(logits_global)
-        logits_local = self.my_last_global(logits_local)
-        ##
-        logits = self.global_coe * logits_global + (1. - self.global_coe) * logits_local
+        # ##
+        # logits_global = self.my_last(logits_global)
+        # logits_local = self.my_last_global(logits_local)
+        # ##
+        # logits = self.global_coe * logits_global + (1. - self.global_coe) * logits_local
 
+        features_global = self.last_layer_global(global_activations)
+        features_local = self.last_layer(local_activations)
+        features = torch.cat((features_global, features_local), dim=1)
 
-        return logits, _
+        # return logits, _
+        return features, _
 
     def push_forward(self, x):
         '''this method is needed for the pushing operation'''

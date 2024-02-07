@@ -198,7 +198,7 @@ def build_dataset(is_train, args):
     elif args.data_set == 'CD_CUB2011U':
         from copy import deepcopy
         test_transform = build_transform(False, args)
-        # transform = ContrastiveLearningViewGenerator(base_transform=transform, n_views=2)
+        transform = ContrastiveLearningViewGenerator(base_transform=transform, n_views=2)
         train_dataset, test_dataset, train_dataset_unlabelled = get_cub_datasets(train_transform=transform, test_transform=test_transform, 
                                    train_classes=range(100), prop_train_labels=0.5)
         unlabelled_train_examples_test = deepcopy(train_dataset_unlabelled)
