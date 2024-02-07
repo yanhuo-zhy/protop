@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from tools.deit_features import deit_tiny_patch_features, deit_small_patch_features, deit_base_patch_features
-from tools.cait_features import cait_xxs24_224_features
+# from tools.deit_features import deit_tiny_patch_features, deit_small_patch_features, deit_base_patch_features
+# from tools.cait_features import cait_xxs24_224_features
 from vision_transformer import vit_base
 
 base_architecture_to_features = {'deit_tiny_patch16_224': deit_tiny_patch_features,
