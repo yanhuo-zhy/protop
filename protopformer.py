@@ -442,8 +442,8 @@ class PPNet_Normal(nn.Module):
         
 
 
-        # self.num_prototypes_global = self.num_classes * self.global_proto_per_class
-        self.num_prototypes_global = self.num_classes
+        self.num_prototypes_global = self.num_classes * self.global_proto_per_class
+        # self.num_prototypes_global = self.num_classes
         self.prototype_shape_global = [self.num_prototypes_global] + self.prototype_shape[1:]
 
         # prototype_activation_function could be 'log', 'linear',
