@@ -13,9 +13,7 @@ module load nvidia/cuda-11.1 nvidia/cudnn-v8.1.1.33-forcuda11.0-to-11.2
 
 source /home/pszzz/miniconda3/bin/activate zhy
 
-export PYTHONPATH=./:$PYTHONPATH
-# export CUDA_VISIBLE_DEVICES=0,1,2,3
-export CUDA_VISIBLE_DEVICES=0
+CUDA_VISIBLE_DEVICES=0
 
 # model=deit_tiny_patch16_224
 # model=deit_small_patch16_224
