@@ -809,8 +809,10 @@ def construct_PPNet_dino(base_architecture, pretrained=True, img_size=224,
                     global_proto_per_class=10,
                     prototype_activation_function='log',
                     add_on_layers_type='bottleneck'):
-    features = vit_base()
-    features.load_state_dict(torch.load('/wang_hp/zhy/gcd-task/pretrained/DINO/dino_vitbase16_pretrain.pth'))
+    # features = vit_base()
+    # features.load_state_dict(torch.load('/wang_hp/zhy/gcd-task/pretrained/DINO/dino_vitbase16_pretrain.pth'))
+    features = torch.hub.load('facebookresearch/dino:main', 'dino_vitb16')
+    # args.feat_dim = 768
     # features = deit_base_patch_features(pretrained=pretrained)
     
     return PPNet_Normal(features=features,
