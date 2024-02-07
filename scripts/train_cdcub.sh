@@ -1,3 +1,4 @@
+#!/bin/sh
 #SBATCH --account cvl
 #SBATCH -p amp20
 #SBATCH --qos amp20
