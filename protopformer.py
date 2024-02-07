@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.init import trunc_normal_
 
 # from tools.deit_features import deit_tiny_patch_features, deit_small_patch_features, deit_base_patch_features
 # from tools.cait_features import cait_xxs24_224_features
@@ -529,6 +530,12 @@ class PPNet_Normal(nn.Module):
         if init_weights:
             self._initialize_weights()
 
+        self.my_last = nn.Linear(100, 100, bias=False)
+        self.my_last_global = nn.Linear(100, 100, bias=False)
+
+        trunc_normal_(self.my_last.weight, std=.02)
+        trunc_normal_(self.my_last_global.weight, std=.02)
+
         # # 遍历 protopformer.features.blocks
         # # 首先关闭 self.protopformer.features 中所有参数的梯度
         # for param in self.features.parameters():
@@ -634,6 +641,10 @@ class PPNet_Normal(nn.Module):
 
             logits_global = self.last_layer_global(global_activations)
             logits_local = self.last_layer(local_activations)
+            ##
+            logits_global = self.my_last(logits_global)
+            logits_local = self.my_last_global(logits_local)
+            ##
             logits = self.global_coe * logits_global + (1. - self.global_coe) * logits_local
             return logits, (_, _, logits_global, logits_local)
 
@@ -661,6 +672,11 @@ class PPNet_Normal(nn.Module):
 
         logits_global = self.last_layer_global(global_activations)
         logits_local = self.last_layer(local_activations)
+
+        ##
+        logits_global = self.my_last(logits_global)
+        logits_local = self.my_last_global(logits_local)
+        ##
         logits = self.global_coe * logits_global + (1. - self.global_coe) * logits_local
 
 
